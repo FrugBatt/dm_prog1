@@ -52,26 +52,6 @@ int tlist_add(tlist_t* l, int x, int y) {
   return 1;
 }
 
-// int tlist_remove(tlist_t* l, int x, int y) {
-//   if (tlist_size(l) == 0) return 0;
-//   int i = l->first;
-//   do {
-//     if (l->tab[i].x == x && l->tab[i].y == y) {
-//       l->tab[i].is_free = false;
-//       int prev = l->tab[i].prev;
-//       int next = l->tab[i].next;
-//       l->tab[prev].next = next;
-//       l->tab[next].prev = prev;
-//       l->size--;
-//       if (i = l->first) l->first = next;
-//       else if (i = l->last) l->last = prev;
-//       return 1;
-//     }
-//     i = l->tab[i].next;
-//   }while(i != l->last);
-//   return 0;
-// }
-
 int tlist_remove(tlist_t* l, int x, int y) {
   if (tlist_size(l) == 0) return 0;
   int e = l->first;
@@ -142,12 +122,40 @@ int tlist_swap(tlist_t* l, int i, int j) {
   // else if(l->first == j) l->first = i;
   // if(l->last == i) l->last = j;
   // else if (l->last == j) l->last = i;
-  int x = l->tab[i].x;
-  int y = l->tab[i].y;
-  l->tab[i].x = l->tab[j].x;
-  l->tab[i].y = l->tab[j].y;
-  l->tab[j].x = x;
-  l->tab[j].y = y;
+  if (l->tab[i].next == j) {
+    int pi = l->tab[i].prev;
+    int nj = l->tab[j].next;
+    l->tab[i].prev = j;
+    l->tab[i].next = nj;
+    l->tab[j].prev = pi;
+    l->tab[j].next = i;
+  } else if (l->tab[i].next == i) {
+    int pj = l->tab[j].prev;
+    int ni = l->tab[i].next;
+    l->tab[j].prev = i;
+    l->tab[j].next = ni;
+    l->tab[i].prev = pj;
+    l->tab[i].next = j;
+  } else {
+    int pi = l->tab[i].prev;
+    int ni = l->tab[i].next;
+    int pj = l->tab[j].prev;
+    int nj = l->tab[j].next;
+    l->tab[i].prev = pj;
+    l->tab[i].next = nj;
+    l->tab[j].prev = pi;
+    l->tab[j].next = ni;
+  }
+  if (l->first == i) l->first = j;
+  else if (l->first == j) l->first = i;
+  if (l->last == i) l->last = j;
+  else if (l->last == j) l->last = i;
+  // int x = l->tab[i].x;
+  // int y = l->tab[i].y;
+  // l->tab[i].x = l->tab[j].x;
+  // l->tab[i].y = l->tab[j].y;
+  // l->tab[j].x = x;
+  // l->tab[j].y = y;
   return 1;
 }
 
