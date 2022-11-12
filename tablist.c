@@ -1,14 +1,17 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+//Q2: Constante
 #define MAX_CAP 100
 
+//Q1: Type elem_t
 typedef struct {
   int x, y;
   bool is_free;
   int next, prev;
 } elem_t;
 
+//Q3: Type tlist_t
 typedef struct {
   elem_t tab[MAX_CAP];
   int size;
@@ -16,10 +19,11 @@ typedef struct {
 } tlist_t;
 
 
+//Q4: Création d'une tlist_t
 tlist_t* tlist_new() {
   tlist_t* p = malloc(sizeof(tlist_t));
   p->size = 0;
-  p->first = 0;
+  p->first = 0; // On initialise le first et le last pour éviter les erreurs lors de l'ajout d'un élement
   p->last = 0;
   for(int i = 0; i < MAX_CAP; i++) {
     p->tab[i].is_free = false;
@@ -27,16 +31,19 @@ tlist_t* tlist_new() {
   return p;
 }
 
+//Q5: Libération d'une tlist_t
 int tlist_free(tlist_t* l) {
   int size = sizeof(l);
   free(l);
   return size;
 }
 
+//Q6: Taille d'une tlist_t
 int tlist_size(tlist_t* l) {
   return l->size;
 }
 
+//Q7: Ajout dans une liste
 int tlist_add(tlist_t* l, int x, int y) {
   if (tlist_size(l) == MAX_CAP) return 0;
   int i = 0;
@@ -52,6 +59,7 @@ int tlist_add(tlist_t* l, int x, int y) {
   return 1;
 }
 
+//Q8: Suppression dans une liste
 int tlist_remove(tlist_t* l, int x, int y) {
   if (tlist_size(l) == 0) return 0;
   int e = l->first;
@@ -79,6 +87,7 @@ int tlist_remove(tlist_t* l, int x, int y) {
   return 0;
 }
 
+//Q9: Retrait de la tête d'une liste
 int tlist_pop(tlist_t* l) {
   if (tlist_size(l) == 0) return 0;
   int first = l->first;
@@ -88,6 +97,7 @@ int tlist_pop(tlist_t* l) {
   return 1;
 }
 
+//Q10: Accès à la tête de la liste
 int tlist_top(tlist_t* l, int *x, int *y) {
   if (tlist_size(l) == 0) return 0;
   *x = l->tab[l->first].x;
@@ -95,6 +105,7 @@ int tlist_top(tlist_t* l, int *x, int *y) {
   return 1;
 }
 
+//Q11: Ajout en tête de liste
 int tlist_push(tlist_t* l, int x, int y) {
   if (tlist_size(l) == MAX_CAP) return 0;
   int i = 0;
@@ -109,19 +120,11 @@ int tlist_push(tlist_t* l, int x, int y) {
   return 1;
 }
 
+//Q12: Échange de deux éléments
 int tlist_swap(tlist_t* l, int i, int j) {
   if (0 > i || 0 > j || i >= MAX_CAP || j >= MAX_CAP) return 0;
   if (!l->tab[i].is_free || !l->tab[j].is_free) return 0;
-  // int previ = l->tab[i].prev;
-  // int nexti = l->tab[i].next;
-  // l->tab[i].prev = l->tab[j].prev;
-  // l->tab[i].next = l->tab[j].next;
-  // l->tab[j].prev = previ;
-  // l->tab[j].next = nexti;
-  // if(l->first == i) l->first = j;
-  // else if(l->first == j) l->first = i;
-  // if(l->last == i) l->last = j;
-  // else if (l->last == j) l->last = i;
+  // On gère à part le cas ou i et j sont des éléments successifs
   if (l->tab[i].next == j) {
     int pi = l->tab[i].prev;
     int nj = l->tab[j].next;
@@ -129,14 +132,18 @@ int tlist_swap(tlist_t* l, int i, int j) {
     l->tab[i].next = nj;
     l->tab[j].prev = pi;
     l->tab[j].next = i;
-  } else if (l->tab[i].next == i) {
+    if (l->first != i) l->tab[pi].next = j;
+    if (l->last != j) l->tab[nj].prev = i;
+  } else if (l->tab[j].next == i) {
     int pj = l->tab[j].prev;
     int ni = l->tab[i].next;
     l->tab[j].prev = i;
     l->tab[j].next = ni;
     l->tab[i].prev = pj;
     l->tab[i].next = j;
-  } else {
+    if (l->first != j) l->tab[pj].next = i;
+    if (l->last != i) l->tab[ni].prev = j;
+  } else { // On échange les pointeurs des éléments précédents et suivants
     int pi = l->tab[i].prev;
     int ni = l->tab[i].next;
     int pj = l->tab[j].prev;
@@ -145,20 +152,20 @@ int tlist_swap(tlist_t* l, int i, int j) {
     l->tab[i].next = nj;
     l->tab[j].prev = pi;
     l->tab[j].next = ni;
+    if (l->first != i) l->tab[pi].next = j;
+    if (l->last != i) l->tab[ni].prev = j;
+    if (l->first != j) l->tab[pj].next = i;
+    if (l->last != j) l->tab[nj].prev = i;
   }
+  // Si l'une des éléments est le premier ou le dernier, on met à jour first et last
   if (l->first == i) l->first = j;
   else if (l->first == j) l->first = i;
   if (l->last == i) l->last = j;
   else if (l->last == j) l->last = i;
-  // int x = l->tab[i].x;
-  // int y = l->tab[i].y;
-  // l->tab[i].x = l->tab[j].x;
-  // l->tab[i].y = l->tab[j].y;
-  // l->tab[j].x = x;
-  // l->tab[j].y = y;
   return 1;
 }
 
+//Q13: Tri (avec implémentation d'un tri bulle utilisant la fonction d'échange)
 int tlist_sort(tlist_t* l) {
   for (int i = 0; i < tlist_size(l)-1; i++) {
     int e0 = l->first;
@@ -168,7 +175,12 @@ int tlist_sort(tlist_t* l) {
       int y0 = l->tab[e0].y;
       int x1 = l->tab[e1].x;
       int y1 = l->tab[e1].y;
-      if (x0*x0 + y0*y0 > x1*x1 + y1*y1) tlist_swap(l,e0,e1);
+      if (x0*x0 + y0*y0 > x1*x1 + y1*y1) {
+        tlist_swap(l,e0,e1);
+        int t = e0;
+        e0 = e1;
+        e1 = t;
+      }
       e0 = e1;
       e1 = l->tab[e0].next;
     }
@@ -176,6 +188,7 @@ int tlist_sort(tlist_t* l) {
   return 1;
 }
 
+//Q14: Affichage d'une liste sur la sortie standard
 int tlist_print(tlist_t* l) {
   int e = l->first;
   for (int i = 0; i < tlist_size(l); i++) {
@@ -185,6 +198,7 @@ int tlist_print(tlist_t* l) {
   return tlist_size(l);
 }
 
+//Q15: Fonction main (format ./tablist x1 y1 x2 y2 x3 y3...)
 int main(int args, char *argv[]) {
   tlist_t* l = tlist_new();
   for(int i = 1; i < args; i+=2) {
@@ -193,12 +207,10 @@ int main(int args, char *argv[]) {
   printf("Liste non triée:\n");
   tlist_print(l);
 
-
-  tlist_remove(l, 2, 3);
-  tlist_remove(l,5,6);
-  
-  tlist_print(l);
-
+  // tlist_swap(l,0,2);
+  // printf("----");
+  // tlist_print(l);
+  // tlist_swap(l,0,2);
   tlist_sort(l);
   printf("Liste triée:\n");
   tlist_print(l);

@@ -2,21 +2,25 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// Q1 : type hnode_t
 typedef struct hnode_s hnode_t;
 struct hnode_s {
-  int val;
-  int inf;
-  hnode_t *prev, *next;
-  hnode_t *bot, *top;
+  int val; // VALEUR
+  int inf; // Noeud +/- infini
+  hnode_t *prev, *next; //Pointeurs vers les noeuds adjacents
+  hnode_t *bot, *top; //Pointeurs vers les noeuds verticalement adjacents
 };
 
+//Q2 : type hlist_t
 typedef struct {
-  hnode_t* head;
-  int height;
+  hnode_t* head; //Tête de la liste
+  int height; //Hauteur
 } hlist_t;
 
+//Q3 : création d'une hlist
 hlist_t* hlist_new() {
   hlist_t* l = malloc(sizeof(hlist_t));
+  // Création des noeuds infinis
   hnode_t* minf = malloc(sizeof(hnode_t));
   hnode_t* pinf = malloc(sizeof(hnode_t));
 
@@ -38,6 +42,7 @@ hlist_t* hlist_new() {
   return l;
 }
 
+//Q4: libération d'une liste
 void hlist_free(hlist_t *l) {
   hnode_t *first = l->head->next;
   for (int i = 0; i < l->height; i++) {
@@ -51,22 +56,8 @@ void hlist_free(hlist_t *l) {
   free(l);
 }
 
-int compare_nodes(hnode_t* n1, hnode_t* n2) {
-  if (n1->inf == -1) {
-    if (n2->inf == -1) return 0;
-    else return -1;
-  } else if (n1->inf == 1) {
-    if (n2->inf == 1) return 0;
-    else return 1;
-  } else {
-    if (n2->inf == -1) return 1;
-    else if (n2->inf == 1) return -1;
-    else if (n1->val < n2->val) return -1;
-    else if (n1->val == n2->val) return 0;
-    else return 1;
-  }
-}
-
+//Q5: Recherche (avec chemin)
+// Comparaison noeud / valeur (pour la gestion des infinis)
 int compare_nv(hnode_t* n, int v) {
   if (n->inf == -1) return -1;
   else if (n->inf == 1) return 1;
@@ -85,12 +76,14 @@ int hlist_search(hlist_t *l, int v, hnode_t* path[]) {
   return node->inf == 0 && node->val == v;
 }
 
+//Q6: ajout dans une liste
 int hlist_add(hlist_t *l, int v) {
   hnode_t *path[l->height];
   hlist_search(l,v,path);
   int r = 0;
   int i = l->height - 1;
   hnode_t *bot = NULL;
+  // On ajoute un nombre aléatoire de fois la valeur ajoutée
   while (i >= 0 && r < RAND_MAX/2) {
     hnode_t* node = malloc(sizeof(hnode_t));
     node->val = v;
@@ -107,6 +100,7 @@ int hlist_add(hlist_t *l, int v) {
     r = rand();
     i--;
   }
+  // On ajoute 1 hauteur si jamais on a atteint le haut de la liste
   if (i < 0) {
     hnode_t* minf = malloc(sizeof(hnode_t));
     hnode_t* pinf = malloc(sizeof(hnode_t));
@@ -131,6 +125,7 @@ int hlist_add(hlist_t *l, int v) {
   return 1;
 }
 
+//Q7: Suppression dans une liste
 int hlist_remove(hlist_t *l, int v) {
   hnode_t *path[l->height];
   int find = hlist_search(l,v,path);
@@ -142,6 +137,7 @@ int hlist_remove(hlist_t *l, int v) {
     free(path[i]);
     i--;
   }
+  // On retire la première ligne si il le faut
   if (l->height > 1 && l->head->bot->next->inf == 1) {
     hnode_t *nhead = l->head->bot;
     free(l->head->next);
@@ -152,6 +148,7 @@ int hlist_remove(hlist_t *l, int v) {
   return 1;
 }
 
+// Fonction d'affichage d'une hlist_t
 void hlist_print(hlist_t *l) {
   hnode_t *first = l->head;
   for (int i = 0; i < l->height; i++) {
@@ -167,8 +164,11 @@ void hlist_print(hlist_t *l) {
   }
 }
 
+//Q8: Fonction main
 int main(int args, char *argv[]) {
+  // On initialise le générateur de nombres aléatoires
   srand(time(NULL));
+
   hlist_t* l = hlist_new();
   for(int i = 1; i < args; i++) {
     hlist_add(l, atoi(argv[i]));
