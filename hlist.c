@@ -44,14 +44,16 @@ hlist_t* hlist_new() {
 
 //Q4: libération d'une liste
 void hlist_free(hlist_t *l) {
-  hnode_t *first = l->head->next;
+  hnode_t *n_node = l->head;
   for (int i = 0; i < l->height; i++) {
-    hnode_t *node = first;
+    hnode_t *node = n_node;
+    hnode_t *tmp;
+    n_node = n_node->bot;
     while(node != NULL) {
+      tmp = node;
       node = node->next;
-      free(node->prev);
+      free(tmp);
     }
-    first = first->bot;
   }
   free(l);
 }
@@ -174,5 +176,5 @@ int main(int args, char *argv[]) {
     hlist_add(l, atoi(argv[i]));
   }
   hlist_print(l);
-  free(l);
+  hlist_free(l);
 }

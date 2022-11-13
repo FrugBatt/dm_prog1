@@ -204,13 +204,6 @@ int main(int args, char *argv[]) {
   for(int i = 1; i < args; i+=2) {
     tlist_add(l, atoi(argv[i]), atoi(argv[i+1]));
   }
-  printf("Liste non triée:\n");
-  tlist_print(l);
-
-  // tlist_swap(l,0,2);
-  // printf("----");
-  // tlist_print(l);
-  // tlist_swap(l,0,2);
   tlist_sort(l);
   printf("Liste triée:\n");
   tlist_print(l);
